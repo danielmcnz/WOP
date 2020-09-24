@@ -95,7 +95,7 @@
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>manifest.xml</AdditionalManifestFiles>
+      <AdditionalManifestFiles>res/manifest.xml</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -111,7 +111,7 @@
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>manifest.xml</AdditionalManifestFiles>
+      <AdditionalManifestFiles>res/manifest.xml</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -131,7 +131,7 @@
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>manifest.xml</AdditionalManifestFiles>
+      <AdditionalManifestFiles>res/manifest.xml</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -151,29 +151,29 @@
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>manifest.xml</AdditionalManifestFiles>
+      <AdditionalManifestFiles>res/manifest.xml</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="hardwareInfo.cpp" />
-    <ClCompile Include="DataConversion.cpp" />
-    <ClCompile Include="dupCheck.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="peripherals.cpp" />
+    <ClCompile Include="src\hardwareInfo.cpp" />
+    <ClCompile Include="src\DataConversion.cpp" />
+    <ClCompile Include="src\dupCheck.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\peripherals.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="hardwareInfo.h" />
-    <ClInclude Include="BotConfig.h" />
-    <ClInclude Include="DataConversion.h" />
-    <ClInclude Include="dupCheck.h" />
-    <ClInclude Include="headers.h" />
-    <ClInclude Include="peripherals.h" />
+    <ClInclude Include="src\hardwareInfo.h" />
+    <ClInclude Include="src\BotConfig.h" />
+    <ClInclude Include="src\DataConversion.h" />
+    <ClInclude Include="src\dupCheck.h" />
+    <ClInclude Include="src\headers.h" />
+    <ClInclude Include="src\peripherals.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Ideas.md" />
+    <None Include="res\Ideas.md" />
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="manifest.xml" />
+    <Xml Include="res\manifest.xml" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

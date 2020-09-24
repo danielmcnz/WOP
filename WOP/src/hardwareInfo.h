@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <shellscalingapi.h>
 #include <intrin.h>
+#include <cstdint>
 
 #pragma comment(lib, "SHCore")
 
@@ -12,9 +13,9 @@
 
 struct DiskSpace
 {
-	std::int64_t avaliableBytes;
-	std::int64_t totalBytes;
-	std::int64_t freeBytes;
+	int64_t avaliableBytes;
+	int64_t totalBytes;
+	int64_t freeBytes;
 };
 
 struct DiskGeometryEx

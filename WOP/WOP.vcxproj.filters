@@ -15,49 +15,49 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="src\DataConversion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dupCheck.cpp">
+    <ClCompile Include="src\dupCheck.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="peripherals.cpp">
+    <ClCompile Include="src\hardwareInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DataConversion.cpp">
+    <ClCompile Include="src\peripherals.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="hardwareInfo.cpp">
+    <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="dupCheck.h">
+    <ClInclude Include="src\peripherals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BotConfig.h">
+    <ClInclude Include="src\BotConfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="peripherals.h">
+    <ClInclude Include="src\DataConversion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="headers.h">
+    <ClInclude Include="src\dupCheck.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DataConversion.h">
+    <ClInclude Include="src\hardwareInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="hardwareInfo.h">
+    <ClInclude Include="src\headers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Ideas.md">
+    <None Include="res\Ideas.md">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="manifest.xml">
+    <Xml Include="res\manifest.xml">
       <Filter>Resource Files</Filter>
     </Xml>
   </ItemGroup>
