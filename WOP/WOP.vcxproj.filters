@@ -55,6 +55,7 @@
     <None Include="res\Ideas.md">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="res\manifest.xml">

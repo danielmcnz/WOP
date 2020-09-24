@@ -100,12 +100,12 @@ DiskGeometryEx& HardwareInfo::GetDriveGeometryInfo()
 	return dge;
 }
 
-DiskSpace& HardwareInfo::GetDriveSize(wchar_t* drive)
+DiskSpace& HardwareInfo::GetDriveSize(const wchar_t* drive)
 {
 	int res = 0;
 	DiskSpace ds;
 
-	res = GetDiskFreeSpaceEx(drive, 
+	res = GetDiskFreeSpaceEx(drive,
 		(PULARGE_INTEGER)&ds.avaliableBytes, 
 		(PULARGE_INTEGER)&ds.totalBytes, 
 		(PULARGE_INTEGER)&ds.freeBytes);
@@ -119,9 +119,14 @@ DiskSpace& HardwareInfo::GetDriveSize(wchar_t* drive)
 	return ds;
 }
 
-int HardwareInfo::GetCpuInfo()
+int* HardwareInfo::GetCpuRegisters()
 {
-	int buf[4];
-	__cpuid(buf, 0);
-	return 0;
+	ZeroMemory(&registers, 0);
+	__cpuid(registers, 0);
+	return registers;
+}
+
+int HardwareInfo::GetCPULogicalProcessorCount()
+{
+	return std::thread::hardware_concurrency();
 }

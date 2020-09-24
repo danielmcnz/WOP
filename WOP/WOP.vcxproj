@@ -170,6 +170,7 @@
     <ClInclude Include="src\peripherals.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="README.md" />
     <None Include="res\Ideas.md" />
   </ItemGroup>
   <ItemGroup>
