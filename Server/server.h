@@ -29,7 +29,7 @@ private:
 	int Login();
 
 	void GetClients(int server_socket, std::vector<int>* clients,
-		std::vector<sockaddr_in*>* client_addrs);
+		std::vector<sockaddr_in> *client_addrs);
 
 	void SendToClients(std::vector<int>* clients);
 private:
@@ -37,5 +37,8 @@ private:
 	int server_socket;
 	int result;
 	std::vector<int> clients;
-	std::vector<sockaddr_in*> client_addrs;
+	std::vector<sockaddr_in> client_addrs;
+private:
+	std::thread get_clients;
+	std::thread send_messages;
 };

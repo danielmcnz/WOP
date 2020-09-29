@@ -40,7 +40,6 @@ int Client::Socket(char* ip)
 		return 1;
 	}
 
-	sockaddr_in server_addr;
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_port = htons(DEFAULT_PORT);
 	inet_pton(AF_INET, ip, &server_addr.sin_addr);
@@ -54,14 +53,15 @@ void Client::Connect()
 	{
 		result = connect(server_socket, (sockaddr*)&server_addr,
 			sizeof(server_addr));
-	} while (result == SOCKET_ERROR);
+	} while (result != 0);
+	std::cout << "successfully connected to server" << std::endl;
 }
 
 void Client::GetServerData()
 {
-	RecieveData(server_socket);
-	/*std::thread get_data(&Client::RecieveData, this, server_socket);
-	get_data.join();*/
+	//RecieveData(server_socket);
+	std::thread get_data(&Client::RecieveData, this, server_socket);
+	get_data.join();
 }
 
 int Client::CloseServerSocket()

@@ -43,11 +43,6 @@ int Server::StartServer()
 
 	AcceptConnections();
 
-	if (CloseClientSockets() != 0)
-	{
-		return 1;
-	}
-	
 	return 0;
 }
 
@@ -94,20 +89,17 @@ int Server::Listen()
 
 void Server::AcceptConnections()
 {
-	GetClients(server_socket, &clients, &client_addrs);
-	SendToClients(&clients);
-
-	/*std::thread get_clients(&GetClients, this, server_socket, 
+	get_clients = std::thread(&Server:: GetClients, this, server_socket,
 		&clients, &client_addrs);
-	std::thread send_messages(&SendToClients, this, &clients);
-
+	send_messages = std::thread(&Server::SendToClients, this, &clients);
 	get_clients.join();
-
-	send_messages.join();*/
+	send_messages.join();
 }
 
 int Server::CloseClientSockets()
 {
+	std::terminate();
+
 	for (int client : clients)
 	{
 		result = closesocket(client);
@@ -147,13 +139,12 @@ int Server::Login()
 }
 
 void Server::GetClients(int server_socket, std::vector<int>* clients,
-	std::vector<sockaddr_in*>* client_addrs)
+	std::vector<sockaddr_in>* client_addrs)
 {
-	do
+	while(true)
 	{
-		int poo = 100;
-		sockaddr_in* client_addr;
-		int client_addrstrlen = sizeof(client_addr);
+		sockaddr_in client_addr = { 0 };
+		socklen_t client_addrstrlen = sizeof(client_addr);
 		int client;
 
 		client = accept(server_socket, (sockaddr*)&client_addr,
@@ -161,7 +152,11 @@ void Server::GetClients(int server_socket, std::vector<int>* clients,
 
 		clients->push_back(client);
 		client_addrs->push_back(client_addr);
-	} while (true);
+
+		char ip[INET_ADDRSTRLEN] = "";
+		inet_ntop(AF_INET, &client_addr.sin_addr, ip, sizeof(ip));
+		std::cout << "Client connected on " << ip << std::endl;
+	}
 }
 
 void Server::SendToClients(std::vector<int>* clients)
@@ -170,7 +165,7 @@ void Server::SendToClients(std::vector<int>* clients)
 	do
 	{
 		msg.clear();
-		std::cin >> msg;
+		getline(std::cin, msg);
 		if (msg.size() > 255)
 		{
 			std::cout << "Message must be less than 256 bytes"
@@ -189,4 +184,9 @@ void Server::SendToClients(std::vector<int>* clients)
 			}
 		}
 	} while (msg != "exit");
+
+	if (CloseClientSockets() != 0)
+	{
+		std::cout << "Failed to close client sockets" << std::endl;
+	}
 }
