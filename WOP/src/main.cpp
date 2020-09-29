@@ -10,7 +10,9 @@
 
 int main()
 {
-	HardwareInfo hwi;
+
+
+	/*HardwareInfo hwi;
 
 	std::cout << "CPU Threads: " << hwi.GetCPULogicalProcessorCount() 
 		<< std::endl;
@@ -18,7 +20,7 @@ int main()
 	int* regs = hwi.GetCpuRegisters();
 	std::cout 
 		<< "reg1: " << regs[0] 
-		<< " reg2: " << regs[1] 
+		<< " reg2: " << regs[1]
 		<< std::endl;
 
 	std::string vendor;
@@ -41,7 +43,7 @@ int main()
 		<< "Free Storage: " << BytesToGB(ds.freeBytes) << "\n" 
 		<< "Directory Size: " << BytesToGB(ds.totalBytes) << "\n" 
 		<< "Used Storage: " << BytesToGB(ds.totalBytes - ds.freeBytes) 
-		<< std::endl;
+		<< std::endl;*/
 
 	/*Peripherals p;
 	Sleep(2000);

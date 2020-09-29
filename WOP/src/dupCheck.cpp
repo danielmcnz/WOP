@@ -13,7 +13,7 @@ int CheckProc(const wchar_t* procName, PROCESSENTRY32 *procEntry)
 	hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 	if (hSnap == INVALID_HANDLE_VALUE)
 	{
-		printf("invalid handle value %s", hSnap);
+		printf("invalid handle value %s", (char*)hSnap);
 		return -1;
 	}
 

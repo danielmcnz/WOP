@@ -1,14 +1,28 @@
 #pragma once
 
-#include <Windows.h>
-#include <winioctl.h>
+//#include <Windows.h>
 #include <stdio.h>
-#include <shellscalingapi.h>
 #include <cstdint>
-#include <intrin.h>
 #include <thread>
 
+#ifdef _WIN32
+
+#include <Windows.h>
+#include <winioctl.h>
+#include <shellscalingapi.h>
+#include <intrin.h>
+
 #pragma comment(lib, "SHCore")
+
+#elif __linux__
+
+#include <cpuid.h>
+
+#else
+
+printf("Unsupported operating system\n");
+
+#endif
 
 #define wszDrive L"\\\\.\\PhysicalDrive1"
 
@@ -22,7 +36,7 @@ struct DiskSpace
 struct DiskGeometryEx
 {
 	DISK_GEOMETRY pdg;
-	ULONGLONG diskSize;
+	unsigned long long diskSize;
 };
 
 struct ScreenInfo
@@ -43,6 +57,7 @@ public:
 	DiskSpace& GetDriveSize(const wchar_t* drive = 0);
 	int* GetCpuRegisters();
 	int GetCPULogicalProcessorCount();
+	int CPUClock();
 private:
 	BOOL GetDriveGeometry(LPWSTR path, DISK_GEOMETRY* pdg);
 	int GetScalePercentage(int dpi);

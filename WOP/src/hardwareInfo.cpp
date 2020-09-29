@@ -105,6 +105,8 @@ DiskSpace& HardwareInfo::GetDriveSize(const wchar_t* drive)
 	int res = 0;
 	DiskSpace ds;
 
+	#ifdef _WIN32
+
 	res = GetDiskFreeSpaceEx(drive,
 		(PULARGE_INTEGER)&ds.avaliableBytes, 
 		(PULARGE_INTEGER)&ds.totalBytes, 
@@ -116,17 +118,39 @@ DiskSpace& HardwareInfo::GetDriveSize(const wchar_t* drive)
 		exit(1);
 	}
 
+	#elif __linux__
+
+
+
+	#endif
+
 	return ds;
 }
 
 int* HardwareInfo::GetCpuRegisters()
 {
+	#ifdef _WIN32
+
 	ZeroMemory(&registers, 0);
 	__cpuid(registers, 0);
+
+	#elif __linux__
+
+	unsigned int i;
+	asm volatile ("cpuid" : "=a" (registers[0]), "=b" (registers[1]),
+		"=c" (registers[2]), "=d" (registers[3]) : "a" (i), "c" (0));
+
+	#endif
+
 	return registers;
 }
 
 int HardwareInfo::GetCPULogicalProcessorCount()
 {
 	return std::thread::hardware_concurrency();
+}
+
+int HardwareInfo::CPUClock()
+{
+	return 0;
 }
