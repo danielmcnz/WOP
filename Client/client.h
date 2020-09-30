@@ -25,6 +25,7 @@ private:
 	void GetServerData();
 	int CloseServerSocket();
 
+	void SendData();
 	void RecieveData(int server_socket);
 private:
 	sockaddr_in server_addr;

@@ -24,21 +24,26 @@ private:
 	int Bind();
 	int Listen();
 	void AcceptConnections();
-	int CloseClientSockets();
+	int StopServer();
+	int CloseClientSocket(int client_num);
 
 	int Login();
 
 	void GetClients(int server_socket, std::vector<int>* clients,
 		std::vector<sockaddr_in> *client_addrs);
 
-	void SendToClients(std::vector<int>* clients);
+	void SendToClients();
+	void RecieveFromClients(int id);
 private:
 	sockaddr_in server_addr;
+	int connected_clients, counted_clients;
 	int server_socket;
 	int result;
+	int msgSize;
 	std::vector<int> clients;
 	std::vector<sockaddr_in> client_addrs;
 private:
 	std::thread get_clients;
 	std::thread send_messages;
+	std::thread recieve_messages;
 };

@@ -1,7 +1,13 @@
 #include "client.h"
 
 Client::Client()
+	:
+	server_socket(0),
+	result(0),
+	msgSize(0)
 {
+	ZeroMemory(&server_addr, 0);
+
 	WSAData wsaData;
 	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
 	{
@@ -24,11 +30,6 @@ int Client::StartClient(char* ip)
 	Connect();
 
 	GetServerData();
-
-	if (CloseServerSocket() != 0)
-	{
-		return 1;
-	}
 }
 
 int Client::Socket(char* ip)
@@ -59,13 +60,17 @@ void Client::Connect()
 
 void Client::GetServerData()
 {
-	//RecieveData(server_socket);
 	std::thread get_data(&Client::RecieveData, this, server_socket);
+	std::thread send_data(&Client::SendData, this);
+
 	get_data.join();
+	send_data.join();
 }
 
 int Client::CloseServerSocket()
 {
+	std::terminate();
+
 	result = closesocket(server_socket);
 	if (result == SOCKET_ERROR)
 	{
@@ -74,6 +79,34 @@ int Client::CloseServerSocket()
 	}
 
 	return 0;
+}
+
+void Client::SendData()
+{
+	std::string msg;
+	do
+	{
+		msg.clear();
+		getline(std::cin, msg);
+
+		if (msg.size() > 255)
+		{
+			std::cout << "Message must be less than 256 bytes"
+				<< std::endl;
+			continue;
+		}
+
+		msgSize = send(server_socket, msg.data(), msg.size(), 0);
+		if (msgSize == SOCKET_ERROR)
+		{
+			std::cout << "Failed to send data to server" << std::endl;
+		}
+	} while (msg != "exit");
+
+	if (CloseServerSocket() != 0)
+	{
+		std::cout << "Failed to close server socket" << std::endl;
+	}
 }
 
 void Client::RecieveData(int server_socket)
@@ -98,5 +131,10 @@ void Client::RecieveData(int server_socket)
 		std::cout << std::endl;
 		msgBuffer.clear();
 		msgBuffer.resize(256);
+	}
+
+	if (CloseServerSocket() != 0)
+	{
+		std::cout << "Failed to close server socket" << std::endl;
 	}
 }
