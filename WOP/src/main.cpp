@@ -10,8 +10,6 @@
 
 int main()
 {
-
-
 	/*HardwareInfo hwi;
 
 	std::cout << "CPU Threads: " << hwi.GetCPULogicalProcessorCount() 

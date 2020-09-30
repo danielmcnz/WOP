@@ -14,6 +14,8 @@ Server::Server()
 	{
 		printf("wsastartip falied\n");
 	}
+	
+	cmd = CommandInterpreter();
 }
 
 Server::~Server()
@@ -23,10 +25,10 @@ Server::~Server()
 
 int Server::StartServer()
 {
-	if (Login() != 0)
+	/*if (Login() != 0)
 	{
 		return 1;
-	}
+	}*/
 
 	if (Socket() != 0)
 	{
@@ -59,6 +61,8 @@ int Server::Socket()
 
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_port = htons(DEFAULT_PORT);
+	//std::string ip = "192.168.20.111";
+	//inet_pton(AF_INET, ip.data(), &server_addr.sin_addr);
 	server_addr.sin_addr.S_un.S_addr = INADDR_ANY;
 
 	return 0;
@@ -94,7 +98,7 @@ void Server::AcceptConnections()
 	get_clients = std::thread(&Server:: GetClients, this, server_socket,
 		&clients, &client_addrs);
 	send_messages = std::thread(&Server::SendToClients, this);
-	recieve_messages = std::thread(&Server::RecieveFromClients, this, counted_clients);
+	recieve_messages = std::thread(&Server::RecieveFromClients, this);
 	get_clients.join();
 	send_messages.join();
 	recieve_messages.join();
@@ -103,6 +107,7 @@ void Server::AcceptConnections()
 	{
 		if (connected_clients > counted_clients)
 		{
+			std::cout << "help" << std::endl;
 			++counted_clients;
 		}
 	}
@@ -117,21 +122,23 @@ int Server::StopServer()
 		result = closesocket(client);
 		if (result == SOCKET_ERROR)
 		{
-			std::cout << "Failed to close client socket" << std::endl;
-			return 1;
+			// Socket is probably already closed
+			// Need to check if client has closed connection prior to this
+			continue;
 		}
 	}
 
 	return 0;
 }
 
-int Server::CloseClientSocket(int client_num)
+int Server::CloseClientSocket(int client)
 {
-	result = closesocket(clients[client_num]);
+	result = closesocket(client);
 	if (result == SOCKET_ERROR)
 	{
-		std::cout << "Failed to close client socket" << std::endl;
-		return 1;
+		// Socket is probably already closed
+		// Need to check if client has closed connection prior to this
+		return 0;
 	}
 	return 0;
 }
@@ -181,8 +188,29 @@ void Server::GetClients(int server_socket, std::vector<int>* clients,
 		char ip[INET_ADDRSTRLEN] = "";
 		char port[100] = "";
 		inet_ntop(AF_INET, &client_addr.sin_addr, ip, sizeof(ip));
-		inet_ntop(AF_INET, &client_addr.sin_port, port, sizeof(port));
-		std::cout << "Client connected from " << ip << ":" << port << std::endl;
+
+		std::vector<char> msgBuffer(256);
+		std::string id;
+		if (msgSize = recv(client, msgBuffer.data(),
+			msgBuffer.size(), 0) > 0)
+		{
+			for (char c : msgBuffer)
+			{
+				if (c != 0)
+				{
+					id.push_back(c);
+				}
+			}
+			if (id[0] == '['
+				&& id[id.size() - 1] == ']')
+			{
+				id = id.substr(1, id.size() - 2);
+				client_ids.push_back(id);
+			}
+		}
+
+		std::cout << id << " connected from " << ip << ":" << 
+			client_addr.sin_port << std::endl;
 	}
 }
 
@@ -197,6 +225,15 @@ void Server::SendToClients()
 		{
 			std::cout << "Message must be less than 256 bytes"
 				<< std::endl;
+			continue;
+		}
+		else if (msg[0] == '.')
+		{
+			// Commands
+
+			cmd.InterpretCommand(msg, clients, client_addrs,
+				connected_clients);
+
 			continue;
 		}
 
@@ -218,50 +255,104 @@ void Server::SendToClients()
 	}
 }
 
-void Server::RecieveFromClients(int id)
+void Server::RecieveFromClients()
 {
 	std::vector<char> msgBuffer(256);
 	do
 	{
 		if (connected_clients > 0)
 		{
-			msgBuffer.clear();
-			msgBuffer.resize(256);
-			char ip[INET_ADDRSTRLEN];
-			inet_ntop(AF_INET, &client_addrs[id].sin_addr, ip, sizeof(ip));
+			fd_set fd;
+			timeval timeout;
 
-			if (msgSize = recv(clients[id], msgBuffer.data(),
-				msgBuffer.size(), 0) > 0)
+			FD_ZERO(&fd);
+			for (int client : clients)
 			{
-				std::cout << ip << ": ";
-				for (char c : msgBuffer)
+				FD_SET(client, &fd);
+			}
+
+			timeout.tv_sec = 0;
+			timeout.tv_usec = 100;
+
+			result = select(server_socket + 1, &fd, 0, 0, &timeout);
+			if (result > 0)
+			{
+				int i = 0;
+				for (int client : clients)
 				{
-					if (c != 0)
+					if (FD_ISSET(client, &fd))
 					{
-						std::cout << c;
+						msgBuffer.clear();
+						msgBuffer.resize(256);
+						char ip[INET_ADDRSTRLEN];
+						inet_ntop(AF_INET, &client_addrs[i].sin_addr, 
+							ip, sizeof(ip));
+
+						if (msgSize = recv(client, msgBuffer.data(),
+							msgBuffer.size(), 0) > 0)
+						{
+							std::cout << client_ids[i] << ": ";
+							for (char c : msgBuffer)
+							{
+								if (c != 0)
+								{
+									std::cout << c;
+								}
+							}
+							std::cout << std::endl;
+						}
+						else
+						{
+							if (msgSize == SOCKET_ERROR)
+							{
+								std::cout << "Failed to recieve data" 
+									<< std::endl;
+								break;
+							}
+							else if (client > 0)
+							{
+								std::cout << client_ids[i] << " on " << ip << ":" << 
+									client_addrs[i].sin_port << " has disconnected" 
+									<< std::endl;
+								CloseClientSocket(client);
+
+								/* Shitty way of removing disconnected client
+								START */
+								std::vector<int> tempClients;
+								for (int c : clients)
+								{
+									if (c != client)
+									{
+										tempClients.push_back(c);
+									}
+								}
+								clients.clear();
+								for (int i = 0; i < tempClients.size(); ++i) 
+								{
+									clients.push_back(tempClients[i]);
+								}
+								/* END */
+
+								--connected_clients;
+								break;
+							}
+						}
 					}
-				}
-				std::cout << std::endl;
-			}
-			else
-			{
-				if (msgSize == SOCKET_ERROR)
-				{
-					std::cout << "Failed to recieve data" << std::endl;
-					break;
-				}
-				else if (clients[id] > 0)
-				{
-					std::cout << "Client " << ip << " has disconnected" << std::endl;
-					CloseClientSocket(0);
-					--connected_clients;
-					break;
+					++i;
 				}
 			}
-		}
-		else
-		{
-			continue;
 		}
 	} while (true);
+}
+
+void Server::AssignPrivilege(int client)
+{
+	// send client privilege level
+
+	std::string privLvl = "0";
+	result = send(client, privLvl.data(), privLvl.size() , 0);
+	if (result == SOCKET_ERROR)
+	{
+		std::cout << "Failed to assign privilege level" << std::endl;
+	}
 }

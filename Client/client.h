@@ -29,6 +29,7 @@ private:
 	void RecieveData(int server_socket);
 private:
 	sockaddr_in server_addr;
+	std::string nickname;
 	int server_socket;
 	int result;
 	int msgSize;

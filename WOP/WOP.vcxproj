@@ -155,6 +155,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\CommandInterpreter.cpp" />
     <ClCompile Include="src\hardwareInfo.cpp" />
     <ClCompile Include="src\DataConversion.cpp" />
     <ClCompile Include="src\dupCheck.cpp" />
@@ -162,12 +163,14 @@
     <ClCompile Include="src\peripherals.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\CommandInterpreter.h" />
     <ClInclude Include="src\hardwareInfo.h" />
     <ClInclude Include="src\BotConfig.h" />
     <ClInclude Include="src\DataConversion.h" />
     <ClInclude Include="src\dupCheck.h" />
     <ClInclude Include="src\headers.h" />
     <ClInclude Include="src\peripherals.h" />
+    <ClInclude Include="src\Structs.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\Ideas.md" />

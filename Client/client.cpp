@@ -50,12 +50,25 @@ int Client::Socket(char* ip)
 
 void Client::Connect()
 {
+	std::string n_id = "[";
+	std::cout << "Enter a username: ";
+	getline(std::cin, nickname);
+
 	do
 	{
 		result = connect(server_socket, (sockaddr*)&server_addr,
 			sizeof(server_addr));
 	} while (result != 0);
 	std::cout << "successfully connected to server" << std::endl;
+
+	n_id.append(nickname);
+	n_id.append("]");
+
+	msgSize = send(server_socket, n_id.data(), n_id.size(), 0);
+	if (msgSize == SOCKET_ERROR)
+	{
+		std::cout << "Failed to send data to server" << std::endl;
+	}
 }
 
 void Client::GetServerData()
