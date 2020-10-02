@@ -25,10 +25,10 @@ Server::~Server()
 
 int Server::StartServer()
 {
-	/*if (Login() != 0)
+	if (Login() != 0)
 	{
 		return 1;
-	}*/
+	}
 
 	if (Socket() != 0)
 	{
@@ -61,8 +61,6 @@ int Server::Socket()
 
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_port = htons(DEFAULT_PORT);
-	//std::string ip = "localhost";
-	//inet_pton(AF_INET, ip.data(), &server_addr.sin_addr);
 	server_addr.sin_addr.S_un.S_addr = INADDR_ANY;
 
 	return 0;
