@@ -5,17 +5,15 @@
 #include <iostream>
 #include <vector>
 
+#include "Structs.h"
+
 class CommandInterpreter
 {
 public:
-	CommandInterpreter();
-	/*CommandInterpreter(std::vector<int> *clients, 
-		std::vector<sockaddr_in> *client_addrs, int *connected_clients);
-	~CommandInterpreter();*/
-	void InterpretCommand(std::string command, std::vector<int> clients,
-		std::vector<sockaddr_in> client_addrs, int connected_clients);
+	void InterpretCommand(std::string command, std::vector<ClientInfo>* clients, int connected_clients);
 private:
 	void GetActiveClients(int connected_clients);
+	void ListClients(std::vector<ClientInfo> *clients);
 private:
 	/*int connected_clients;
 	std::vector<int> clients;

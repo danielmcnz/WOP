@@ -1,3 +1,5 @@
+#pragma once
+
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 #include <iphlpapi.h>
@@ -9,6 +11,7 @@
 #include <thread>
 
 #include "CommandInterpreter.h"
+#include "Structs.h"
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -31,8 +34,7 @@ private:
 
 	int Login();
 
-	void GetClients(int server_socket, std::vector<int>* clients,
-		std::vector<sockaddr_in> *client_addrs);
+	void GetClients(int server_socket, std::vector<ClientInfo> *clients);
 
 	void SendToClients();
 	void RecieveFromClients();
@@ -44,10 +46,7 @@ private:
 	int server_socket;
 	int result;
 	int msgSize;
-	//std::vector<ClientInfo> clients;
-	std::vector<int> clients;
-	std::vector<std::string> client_ids;
-	std::vector<sockaddr_in> client_addrs;
+	std::vector<ClientInfo> clients;
 private:
 	//std::vector<std::thread> threads;
 	std::thread get_clients;

@@ -14,7 +14,7 @@ Server::Server()
 	{
 		printf("wsastartip falied\n");
 	}
-	
+
 	cmd = CommandInterpreter();
 }
 
@@ -61,7 +61,7 @@ int Server::Socket()
 
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_port = htons(DEFAULT_PORT);
-	//std::string ip = "192.168.20.111";
+	//std::string ip = "localhost";
 	//inet_pton(AF_INET, ip.data(), &server_addr.sin_addr);
 	server_addr.sin_addr.S_un.S_addr = INADDR_ANY;
 
@@ -96,7 +96,7 @@ int Server::Listen()
 void Server::AcceptConnections()
 {
 	get_clients = std::thread(&Server:: GetClients, this, server_socket,
-		&clients, &client_addrs);
+		&clients);
 	send_messages = std::thread(&Server::SendToClients, this);
 	recieve_messages = std::thread(&Server::RecieveFromClients, this);
 	get_clients.join();
@@ -117,9 +117,9 @@ int Server::StopServer()
 {
 	std::terminate();
 
-	for (int client : clients)
+	for (ClientInfo client : clients)
 	{
-		result = closesocket(client);
+		result = closesocket(client.socket);
 		if (result == SOCKET_ERROR)
 		{
 			// Socket is probably already closed
@@ -168,12 +168,12 @@ int Server::Login()
 	return 1;
 }
 
-void Server::GetClients(int server_socket, std::vector<int>* clients,
-	std::vector<sockaddr_in>* client_addrs)
+void Server::GetClients(int server_socket, std::vector<ClientInfo> *clients)
 {
 	
 	while(true)
 	{
+		ClientInfo clientInfo = { 0 };
 		sockaddr_in client_addr = { 0 };
 		socklen_t client_addrstrlen = sizeof(client_addr);
 		int client;
@@ -181,8 +181,8 @@ void Server::GetClients(int server_socket, std::vector<int>* clients,
 		client = accept(server_socket, (sockaddr*)&client_addr,
 			&client_addrstrlen);
 
-		clients->push_back(client);
-		client_addrs->push_back(client_addr);
+		clientInfo.socket = client;
+		clientInfo.addr = client_addr;
 		++connected_clients;
 
 		char ip[INET_ADDRSTRLEN] = "";
@@ -205,9 +205,11 @@ void Server::GetClients(int server_socket, std::vector<int>* clients,
 				&& id[id.size() - 1] == ']')
 			{
 				id = id.substr(1, id.size() - 2);
-				client_ids.push_back(id);
+				clientInfo.id = id;
 			}
 		}
+
+		clients->push_back(clientInfo);
 
 		std::cout << id << " connected from " << ip << ":" << 
 			client_addr.sin_port << std::endl;
@@ -231,16 +233,16 @@ void Server::SendToClients()
 		{
 			// Commands
 
-			cmd.InterpretCommand(msg, clients, client_addrs,
+			cmd.InterpretCommand(msg, &clients,
 				connected_clients);
 
 			continue;
 		}
 
-		for (int client : clients)
+		for (ClientInfo client : clients)
 		{
 			int size;
-			size = send(client, msg.data(), msg.size(), 0);
+			size = send(client.socket, msg.data(), msg.size(), 0);
 			if (size == SOCKET_ERROR)
 			{
 				std::cout << "Failed to send message to client"
@@ -266,9 +268,9 @@ void Server::RecieveFromClients()
 			timeval timeout;
 
 			FD_ZERO(&fd);
-			for (int client : clients)
+			for (ClientInfo client : clients)
 			{
-				FD_SET(client, &fd);
+				FD_SET(client.socket, &fd);
 			}
 
 			timeout.tv_sec = 0;
@@ -278,20 +280,20 @@ void Server::RecieveFromClients()
 			if (result > 0)
 			{
 				int i = 0;
-				for (int client : clients)
+				for (ClientInfo client : clients)
 				{
-					if (FD_ISSET(client, &fd))
+					if (FD_ISSET(client.socket, &fd))
 					{
 						msgBuffer.clear();
 						msgBuffer.resize(256);
 						char ip[INET_ADDRSTRLEN];
-						inet_ntop(AF_INET, &client_addrs[i].sin_addr, 
+						inet_ntop(AF_INET, &client.addr.sin_addr, 
 							ip, sizeof(ip));
 
-						if (msgSize = recv(client, msgBuffer.data(),
+						if (msgSize = recv(client.socket, msgBuffer.data(),
 							msgBuffer.size(), 0) > 0)
 						{
-							std::cout << client_ids[i] << ": ";
+							std::cout << client.id << ": ";
 							for (char c : msgBuffer)
 							{
 								if (c != 0)
@@ -309,21 +311,26 @@ void Server::RecieveFromClients()
 									<< std::endl;
 								break;
 							}
-							else if (client > 0)
+							else if (client.socket > 0)
 							{
-								std::cout << client_ids[i] << " on " << ip << ":" << 
-									client_addrs[i].sin_port << " has disconnected" 
+								std::cout << client.id << " on " << ip << ":" << 
+									client.addr.sin_port << " has disconnected" 
 									<< std::endl;
-								CloseClientSocket(client);
+								CloseClientSocket(client.socket);
 
 								/* Shitty way of removing disconnected client
 								START */
-								std::vector<int> tempClients;
-								for (int c : clients)
+								std::vector<ClientInfo> tempClients;
+								for (ClientInfo c : clients)
 								{
-									if (c != client)
+									if (c.socket != client.socket)
 									{
-										tempClients.push_back(c);
+										ClientInfo ci;
+										ci.addr = c.addr;
+										ci.id = c.id;
+										ci.privilegeLvl = c.privilegeLvl;
+										ci.socket = c.socket;
+										tempClients.push_back(ci);
 									}
 								}
 								clients.clear();
